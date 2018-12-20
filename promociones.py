@@ -35,9 +35,9 @@ c_query = ("SELECT count(*) FROM promociones WHERE fecha_inicio <= '"+fecha+" 00
 mycursor.execute(c_query)
 
 for q in mycursor:
+  log = open("log.txt", "a") # Log
+  
   if q[0] > 0:
-    log = open("log.txt", "a")
-
     f = "-- FROM MAIL --"
     t = "-- TO MAIL --" 
 
