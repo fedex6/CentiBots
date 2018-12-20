@@ -38,7 +38,7 @@ for q in mycursor:
   if q[0] > 0:
     log = open("log.txt", "a")
 
-    f = "-- FROM MAIL"
+    f = "-- FROM MAIL --"
     t = "-- TO MAIL --" 
 
     # Create message container - the correct MIME type is multipart/alternative.
