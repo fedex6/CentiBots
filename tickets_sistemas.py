@@ -73,10 +73,14 @@ def handle(msg):
 
         empleado.close()
 
-bot = telepot.Bot(token) ## Poner el Token mas arriba
 bot.message_loop(handle)
 
-
+while 1:
+        try:
+            time.sleep(1)
+        except KeyboardInterrupt:
+            print('Terminado')
+            exit()
 
     ########################################
     ## DE ESTA MANERA SE PUEDEN CARGAR    ##
