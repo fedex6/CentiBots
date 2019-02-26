@@ -30,7 +30,7 @@ mydb = mysql.connector.connect(
 
 ## Bot data
 token       =   '-- TOKEN BOT --'
-owner_id     =   '-- ID DEL CHAT DE DESTINO --'
+owner_id     =   '-- ID DEL CHAT DEL PROPIETARIO --' # En este caso hay una sola persona en Sistemas.
 bot         =   telepot.Bot(token)
 
 ## Comandos
@@ -42,28 +42,32 @@ def handle(msg):
     if command.startswith('/ticket'):
         # Es empleado ?
         empleado = mydb.cursor()
-        empleado.execute("SELECT user, nombre FROM usuarios WHERE id_tlg = '"+ chat_id +"' LIMIT 1;")
+        empleado.execute("SELECT user, nombre FROM usuarios WHERE id_tlg = '"+ str(chat_id) +"' LIMIT 1;")
 
         for e in empleado:
             if e != '':
                 #Obtener el Problema
-                problema = commnand.split('/ticket ')[1]
+                problema = command.split('/ticket ')[1]
 
                 if problema != '':
                     # Cargar ticket
                     newTicket = mydb.cursor()
-                    newTicket.execute("INSERT INTO tickets_sistemas SET usuario = '"+ e[0] +"', problema = '"+ problema +"', fecha_carga = '"+ str(time("%Y-%m-%d %H:%i:%s")) +"';")
-                    
+                    newTicket.execute("INSERT INTO tickets_sistemas SET usuario = '"+ e[0] +"', problema = '"+ problema +"', fecha_carga = '"+ str(time.strftime("%Y-%m-%d %H:%M:%S")) +"';")
+                    mydb.commit()
+
                     # Ultimo Ticket
                     lastTicket = mydb.cursor()
                     lastTicket.execute("SELECT max(id) as last FROM tickets_sistemas;")
+
                     for lt in lastTicket:
                         setTracking = mydb.cursor()
-                        setTracking.execute("UPDATE tickets_sistemas SET tracking = 'TLG"+ lastTicket[0] +"' WHERE id = '"+ lastTicket[0] +"';")
+                        setTracking.execute("UPDATE tickets_sistemas SET tracking = 'TLG"+ str(lt[0]) +"' WHERE id = "+ str(lt[0]) +";")
+                        mydb.commit()
+                        setTracking.close()
 
                         # Enviar mensajes
-                        bot.sendMessage(chat_id, 'Ticket cargado: #TLG'+ lastTicket[0]) # Avisar que se cargo
-                        bot.sendMessage(owner_id, '-- Nuevo Ticket --\n#TLG'+ lastTicket[0] +'\nDe: '+ empleado[1] +'\n\nProblema: '+ problema +'\nFecha de carga: '+ str(time("%d-%m-%Y %H:%i")) ) # Avisarle a Sistemas
+                        bot.sendMessage(chat_id, 'Ticket cargado: #TLG'+ str(lt[0])) # Avisar que se cargo
+                        bot.sendMessage(owner_id, '-- Nuevo Ticket --\n#TLG'+ str(lt[0]) +'\nDe: '+ e[1] +'\n\nProblema: '+ problema +'\nFecha de carga: '+ str(time.strftime("%d-%m-%Y %H:%M")) ) # Avisarle a Sistemas
                     lastTicket.close()
                     newTicket.close()
             else:
